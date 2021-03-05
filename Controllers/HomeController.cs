@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MVCBookManager.Data;
 using MVCBookManager.Models;
 using System;
 using System.Collections.Generic;
@@ -12,15 +15,29 @@ namespace MVCBookManager.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly MvcBookContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, MvcBookContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> IndexAsync()
         {
-            return View();
+            IQueryable<string> authorQuery = from author in _context.Book
+                                             orderby author.Author
+                                             select author.Author;
+            var books = from book in _context.Book
+                        where book.IsAvailable == true
+                        select book;
+            var bookAuthorVM = new BookAuthorViewModel
+            {
+                Authors = new SelectList(await authorQuery.Distinct().ToListAsync()),
+                Books = await books.ToListAsync()
+            };
+
+            return View(bookAuthorVM);
         }
 
         public IActionResult Privacy()
