@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MVCBookManager.Models
 {
@@ -16,7 +18,10 @@ namespace MVCBookManager.Models
         
         [Display(Name = "Autor"), Required]
         public string Author { get; set; }
-       
+        
+        [Display(Name = "Capa do livro")]
+        public string BookCoverID { get; set; }
+
         [DataType(DataType.Date), Display(Name = "Publicação")]
         public DateTime Year { get; set; }
        
@@ -28,6 +33,9 @@ namespace MVCBookManager.Models
 
         [Display(Name = "Editora"), Required]
         public string PublishingHouse { get; set; }
+
+        [NotMapped, Display(Name = "Capa do livro" )]
+        public IFormFile BookCover { get; set; }
         
         public bool IsAvailable { get; set; }
     }
