@@ -10,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
@@ -32,6 +32,11 @@
                 <label asp-for="Category" class="control-label"></label>
                 <input asp-for="Category" class="form-control" />
                 <span asp-validation-for="Category" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BookCoverID" class="control-label"></label>
+                <input asp-for="BookCover" accept="image/*" />
+                <span asp-validation-for="BookCover" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Isbn" class="control-label"></label>

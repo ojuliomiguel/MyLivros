@@ -35,6 +35,12 @@
             @Html.DisplayFor(model => model.Category)
         </dd>
         <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.BookCoverID)
+        </dt>
+        <dd class="col-sm-10">
+            <img src="@("~/Images/"+Model.BookCoverID)" asp-append-version="true" , width="250" />
+        </dd>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Isbn)
         </dt>
         <dd class="col-sm-10">
