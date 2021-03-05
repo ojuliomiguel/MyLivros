@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +15,12 @@ namespace MVCBookManager
     public class BooksController : Controller
     {
         private readonly MvcBookContext _context;
+        private readonly IWebHostEnvironment _hostEnvironment;
 
-        public BooksController(MvcBookContext context)
+        public BooksController(MvcBookContext context, IWebHostEnvironment hostEnvironment)
         {
             _context = context;
+            _hostEnvironment = hostEnvironment;
         }
 
         // GET: Books
@@ -77,10 +81,21 @@ namespace MVCBookManager
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Author,Year,Category,Isbn, PublishingHouse")] Book book)
+        public async Task<IActionResult> Create([Bind("Id,Name,Author,Year,Category,Isbn, PublishingHouse, BookCover")] Book book)
         {
             if (ModelState.IsValid)
             {
+                string wwwRootPath = _hostEnvironment.WebRootPath;
+                string fileName = Path.GetFileNameWithoutExtension(book.BookCover.FileName);
+                string extension = Path.GetExtension(book.BookCover.FileName);
+                book.BookCoverID = fileName += DateTime.Now.ToString("yymmssfff") + extension;
+                string path = Path.Combine(wwwRootPath + "/Images/", fileName);
+
+                using(var fileStream = new FileStream(path, FileMode.Create))
+                {
+                    await book.BookCover.CopyToAsync(fileStream);
+                }
+
                 _context.Add(book);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -109,7 +124,7 @@ namespace MVCBookManager
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Author,Year,Category,Isbn,PublishingHouse")] Book book)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Author,Year,Category,Isbn,PublishingHouse, BookCover")] Book book)
         {
             if (id != book.Id)
             {
@@ -120,6 +135,16 @@ namespace MVCBookManager
             {
                 try
                 {
+                    string wwwRootPath = _hostEnvironment.WebRootPath;
+                    string fileName = Path.GetFileNameWithoutExtension(book.BookCover.FileName);
+                    string extension = Path.GetExtension(book.BookCover.FileName);
+                    book.BookCoverID = fileName += DateTime.Now.ToString("yymmssfff") + extension;
+                    string path = Path.Combine(wwwRootPath + "/Images/", fileName);
+
+                    using (var fileStream = new FileStream(path, FileMode.Create))
+                    {
+                        await book.BookCover.CopyToAsync(fileStream);
+                    }
                     _context.Update(book);
                     await _context.SaveChangesAsync();
                 }
@@ -163,6 +188,11 @@ namespace MVCBookManager
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var book = await _context.Book.FindAsync(id);
+            var imagePath = Path.Combine(_hostEnvironment.WebRootPath, "Images", book.BookCoverID);
+            if (System.IO.File.Exists(imagePath))
+            {
+                System.IO.File.Delete(imagePath);
+            }
             book.IsAvailable = false;
             _context.Book.Update(book);
             await _context.SaveChangesAsync();
