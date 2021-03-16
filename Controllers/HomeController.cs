@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MVCBookManager.Data;
 using MVCBookManager.Models;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -28,9 +27,9 @@ namespace MVCBookManager.Controllers
             IQueryable<string> authorQuery = from author in _context.Book
                                              orderby author.Author
                                              select author.Author;
-            var books = from book in _context.Book
+            var books = (from book in _context.Book
                         where book.IsAvailable == true
-                        select book;
+                        select book).Take(3);
             var bookAuthorVM = new BookAuthorViewModel
             {
                 Authors = new SelectList(await authorQuery.Distinct().ToListAsync()),
@@ -40,7 +39,7 @@ namespace MVCBookManager.Controllers
             return View(bookAuthorVM);
         }
 
-        public IActionResult Privacy()
+        public IActionResult About()
         {
             return View();
         }
