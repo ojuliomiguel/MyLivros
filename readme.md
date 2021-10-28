@@ -4,7 +4,7 @@ MyLivros é uma aplicação web que tem por objetivo ser um gerenciador simples 
 
 <br>
 
-![home](https://i.ibb.co/2gmJQNM/home.png)
+![home](https://i.ibb.co/9szPLt4/home.png)
 
 ## Funcionalidades
 
